@@ -1,0 +1,20 @@
+{
+  "name": "incrementally-rendered-frame",
+  "version": "1.0.0",
+  "description": "An iframe that incrementally renders.",
+  "main": "incrementally-rendered-frame.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/donejs/incrementally-rendered-frame.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/donejs/incrementally-rendered-frame/issues"
+  },
+  "homepage": "https://github.com/donejs/incrementally-rendered-frame#readme"
+}
