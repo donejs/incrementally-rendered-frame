@@ -1,16 +1,25 @@
 
 const styles = `
+* {
+	box-sizing: border-box;
+}
+
+:host {
+	display: block;
+}
+
 iframe {
 	border-width: 1px;
 	border-style: solid;
 	border-color: tomato;
 	width: 100%;
-	min-height: 400px;
+	height: 100%;
 }
 
 #apps {
 	font-family: 'Proxima Nova Soft', 'Helvetica Neue', sans-serif;
 	display: flex;
+	height: 100%;
 }
 
 .app {
@@ -65,6 +74,10 @@ class IncrementallyRenderedFrame extends HTMLElement {
 		return this.getAttribute('src');
 	}
 
+	get omitLog() {
+		return this.hasAttribute('omit-log');
+	}
+
 	async _setupWhenReady() {
 		let steal = window.steal;
 		let p;
@@ -82,15 +95,18 @@ class IncrementallyRenderedFrame extends HTMLElement {
 	_setup(MutationEncoder, MutationPatcher, log) {
 		this._cloneIframe();
 
-		log.element(this._sourceDoc.documentElement);
+		// Logging is on by default by can be disabled with the omit-log attribute.
+		if(!this.omitLog) {
+			log.element(this._sourceDoc);
+		}
 
-		let encoder = new MutationEncoder(this._sourceDoc.documentElement);
-		let patcher = new MutationPatcher(this._cloneDoc.documentElement);
+		let encoder = new MutationEncoder(this._sourceDoc);
+		let patcher = new MutationPatcher(this._cloneDoc);
 
 		new MutationObserver(records => {
-			//let bytes = encoder.mutations(records);
-			//patcher.patch(bytes);
-		}).observe(this._sourceDoc.documentElement, {
+			let bytes = Uint8Array.from(encoder.mutations(records));
+			patcher.patch(bytes);
+		}).observe(this._sourceDoc, {
 			characterData: true,
 			childList: true,
 			subtree: true,
@@ -110,6 +126,12 @@ class IncrementallyRenderedFrame extends HTMLElement {
 		this._cloneDoc.documentElement.replaceWith(
 			importClone(this._sourceDoc.documentElement, this._cloneDoc)
 		);
+
+		// Add the doctype
+		if(this._sourceDoc.firstChild.nodeType === 10) {
+			let clone = this._sourceDoc.firstChild.cloneNode();
+			this._cloneDoc.insertBefore(clone, this._cloneDoc.documentElement);
+		}
 	}
 }
 
@@ -120,8 +142,10 @@ function importClone(node, document) {
 	let scripts = clone.getElementsByTagName("script");
 	for(let script of scripts) {
 		script.removeAttribute("src");
-		while(script.firstChild) {
-			script.removeChild(script.firstChild);
+		let child = script.firstChild;
+		while(child) {
+			child.nodeValue = "";
+			child = child.nextSibling;
 		}
 	}
 	return clone;
