@@ -1,6 +1,6 @@
 {
   "name": "incrementally-rendered-frame",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "An iframe that incrementally renders.",
   "main": "incrementally-rendered-frame.js",
   "scripts": {
