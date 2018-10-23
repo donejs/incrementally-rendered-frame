@@ -16,5 +16,9 @@
   "bugs": {
     "url": "https://github.com/donejs/incrementally-rendered-frame/issues"
   },
-  "homepage": "https://github.com/donejs/incrementally-rendered-frame#readme"
+  "homepage": "https://github.com/donejs/incrementally-rendered-frame#readme",
+  "dependencies": {
+    "done-mutation": "^2.0.0",
+    "ir-clone": "^1.0.2"
+  }
 }

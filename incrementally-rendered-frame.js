@@ -82,7 +82,7 @@ class IncrementallyRenderedFrame extends HTMLElement {
 		let steal = window.steal;
 		let p;
 		if(steal) {
-			p = steal.import("done-mutation/encoder", "done-mutation/patch", "done-mutation/log");
+			p = steal.import("done-mutation/encoder", "done-mutation/patch", "done-mutation/log", "ir-clone");
 		} else {
 			// Import from unpkg?
 			p = Promise.resolve();
@@ -92,8 +92,8 @@ class IncrementallyRenderedFrame extends HTMLElement {
 		this._setup.apply(this, modules);
 	}
 
-	_setup(MutationEncoder, MutationPatcher, log) {
-		this._cloneIframe();
+	_setup(MutationEncoder, MutationPatcher, log, cloneUtils) {
+		this._cloneIframe(cloneUtils);
 
 		// Logging is on by default by can be disabled with the omit-log attribute.
 		if(!this.omitLog) {
@@ -119,14 +119,14 @@ class IncrementallyRenderedFrame extends HTMLElement {
 		});
 	}
 
-	_cloneIframe() {
+	_cloneIframe(cloneUtils) {
 		let root = this.shadowRoot;
 		this._sourceDoc = root.querySelector("#doc1").contentDocument;
 		this._cloneDoc = root.querySelector("#doc2").contentDocument;
-		this._cloneDoc.documentElement.replaceWith(
-			importClone(this._sourceDoc.documentElement, this._cloneDoc)
-		);
-
+		let cloneRoot = this._cloneDoc.createElement("html");
+		cloneRoot.innerHTML = cloneUtils.serializeToString(this._sourceDoc.documentElement);
+		this._cloneDoc.documentElement.replaceWith(cloneRoot);
+		
 		// Add the doctype
 		if(this._sourceDoc.firstChild.nodeType === 10) {
 			let clone = this._sourceDoc.firstChild.cloneNode();
